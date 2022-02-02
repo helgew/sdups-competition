@@ -3,7 +3,7 @@
 /**
  * Register all actions and filters for the plugin
  *
- * @link       http://example.com
+ * @link       https://github.com/helgew/sdups-competition
  * @since      1.0.0
  *
  * @package    SDUPS_Competition
@@ -19,7 +19,7 @@
  *
  * @package    SDUPS_Competition
  * @subpackage SDUPS_Competition/includes
- * @author     Your Name <email@example.com>
+ * @author     Helge Weissig <helgew@grajagan.org>
  */
 class SDUPS_Competition_Loader {
 

@@ -6,7 +6,7 @@
  * A class definition that includes attributes and functions used across both the
  * public-facing side of the site and the admin area.
  *
- * @link       http://example.com
+ * @link       https://github.com/helgew/sdups-competition
  * @since      1.0.0
  *
  * @package    SDUPS_Competition
@@ -25,7 +25,7 @@
  * @since      1.0.0
  * @package    SDUPS_Competition
  * @subpackage SDUPS_Competition/includes
- * @author     Your Name <email@example.com>
+ * @author     Helge Weissig <helgew@grajagan.org>
  */
 class SDUPS_Competition {
 

@@ -33,6 +33,7 @@ if ( ! defined( 'WPINC' ) ) {
  * Current plugin version.
  */
 define( 'SDUPS_COMPETITION_VERSION', '1.0.0' );
+define( 'SDUPS_COMPETITION_POST_TYPE', 'sdups-competition' );
 
 /**
  * The code that runs during plugin activation.
@@ -76,4 +77,5 @@ function run_sdups_competiton() {
 	$plugin->run();
 
 }
+
 run_sdups_competiton();
