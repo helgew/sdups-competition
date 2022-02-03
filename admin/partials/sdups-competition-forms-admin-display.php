@@ -1,4 +1,5 @@
 <?php
+if ( ! defined( 'WPINC' ) ) die;
 
 /**
  * Provide a admin area view for the plugin
@@ -13,4 +14,7 @@
  */
 ?>
 
-<!-- This file should primarily consist of HTML with a little bit of PHP. -->
+<div class="wrap">
+    <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+    <h2>Existing Voting Forms</h2>
+</div>

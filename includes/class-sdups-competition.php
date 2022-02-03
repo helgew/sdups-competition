@@ -29,13 +29,15 @@
  */
 class SDUPS_Competition {
 
+	static $LOGGER;
+
 	/**
 	 * The loader that's responsible for maintaining and registering all hooks that power
 	 * the plugin.
 	 *
 	 * @since    1.0.0
 	 * @access   protected
-	 * @var      SDUPS_Competition_Loader    $loader    Maintains and registers all hooks for the plugin.
+	 * @var      SDUPS_Competition_Loader $loader Maintains and registers all hooks for the plugin.
 	 */
 	protected $loader;
 
@@ -44,16 +46,16 @@ class SDUPS_Competition {
 	 *
 	 * @since    1.0.0
 	 * @access   protected
-	 * @var      string    $sdups_competition    The string used to uniquely identify this plugin.
+	 * @var      string $plugin_name The string used to uniquely identify this plugin.
 	 */
-	protected $sdups_competition;
+	protected $plugin_name;
 
 	/**
 	 * The current version of the plugin.
 	 *
 	 * @since    1.0.0
 	 * @access   protected
-	 * @var      string    $version    The current version of the plugin.
+	 * @var      string $version The current version of the plugin.
 	 */
 	protected $version;
 
@@ -72,13 +74,14 @@ class SDUPS_Competition {
 		} else {
 			$this->version = '1.0.0';
 		}
-		$this->sdups_competition = 'sdups-competition';
+		$this->plugin_name = SDUPS_COMPETITION_PLUGIN_NAME;
 
 		$this->load_dependencies();
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
 
+		self::$LOGGER->debug( "Initialized Plugin version " . $this->version );
 	}
 
 	/**
@@ -152,11 +155,11 @@ class SDUPS_Competition {
 	 */
 	private function define_admin_hooks() {
 
-		$plugin_admin = new SDUPS_Competition_Admin( $this->get_sdups_competition(), $this->get_version() );
+		$plugin_admin = new SDUPS_Competition_Admin( $this->get_plugin_name(), $this->get_version() );
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
-
+		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_sdups_admin_menus' );
 	}
 
 	/**
@@ -168,7 +171,7 @@ class SDUPS_Competition {
 	 */
 	private function define_public_hooks() {
 
-		$plugin_public = new SDUPS_Competition_Public( $this->get_sdups_competition(), $this->get_version() );
+		$plugin_public = new SDUPS_Competition_Public( $this->get_plugin_name(), $this->get_version() );
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
@@ -188,18 +191,18 @@ class SDUPS_Competition {
 	 * The name of the plugin used to uniquely identify it within the context of
 	 * WordPress and to define internationalization functionality.
 	 *
-	 * @since     1.0.0
 	 * @return    string    The name of the plugin.
+	 * @since     1.0.0
 	 */
-	public function get_sdups_competition() {
-		return $this->sdups_competition;
+	public function get_plugin_name() {
+		return $this->plugin_name;
 	}
 
 	/**
 	 * The reference to the class that orchestrates the hooks with the plugin.
 	 *
-	 * @since     1.0.0
 	 * @return    SDUPS_Competition_Loader    Orchestrates the hooks of the plugin.
+	 * @since     1.0.0
 	 */
 	public function get_loader() {
 		return $this->loader;
@@ -208,11 +211,19 @@ class SDUPS_Competition {
 	/**
 	 * Retrieve the version number of the plugin.
 	 *
-	 * @since     1.0.0
 	 * @return    string    The version number of the plugin.
+	 * @since     1.0.0
 	 */
 	public function get_version() {
 		return $this->version;
 	}
-
 }
+
+/**
+ * The logging class. Need to put this here or in the plugin's php file to be able to log in
+ * this class.
+ */
+require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-sdups-competition-logger.php';
+
+SDUPS_Competition::$LOGGER = new SDUPS_Competition_Logger( SDUPS_Competition::class,
+	SDUPS_Competition_Log_Level::DEBUG );

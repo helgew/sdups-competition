@@ -22,36 +22,38 @@
  */
 class SDUPS_Competition_Admin {
 
+	static $LOGGER;
+
 	/**
 	 * The ID of this plugin.
 	 *
 	 * @since    1.0.0
 	 * @access   private
-	 * @var      string    $sdups_competition    The ID of this plugin.
+	 * @var      string $plugin_name The ID of this plugin.
 	 */
-	private $sdups_competition;
+	private $plugin_name;
 
 	/**
 	 * The version of this plugin.
 	 *
 	 * @since    1.0.0
 	 * @access   private
-	 * @var      string    $version    The current version of this plugin.
+	 * @var      string $version The current version of this plugin.
 	 */
 	private $version;
 
 	/**
 	 * Initialize the class and set its properties.
 	 *
+	 * @param string $plugin_name The name of this plugin.
+	 * @param string $version The version of this plugin.
+	 *
 	 * @since    1.0.0
-	 * @param      string    $sdups_competition       The name of this plugin.
-	 * @param      string    $version    The version of this plugin.
 	 */
-	public function __construct( $sdups_competition, $version ) {
+	public function __construct( $plugin_name, $version ) {
 
-		$this->sdups_competition = $sdups_competition;
-		$this->version = $version;
-
+		$this->plugin_name = $plugin_name;
+		$this->version     = $version;
 	}
 
 	/**
@@ -73,7 +75,7 @@ class SDUPS_Competition_Admin {
 		 * class.
 		 */
 
-		wp_enqueue_style( $this->sdups_competition, plugin_dir_url( __FILE__ ) . 'css/sdups-competition-admin.css', array(), $this->version, 'all' );
+		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/sdups-competition-admin.css', array(), $this->version, 'all' );
 
 	}
 
@@ -96,8 +98,73 @@ class SDUPS_Competition_Admin {
 		 * class.
 		 */
 
-		wp_enqueue_script( $this->sdups_competition, plugin_dir_url( __FILE__ ) . 'js/sdups-competition-admin.js', array( 'jquery' ), $this->version, false );
+		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/sdups-competition-admin.js', array( 'jquery' ), $this->version, false );
 
 	}
 
+	public function add_sdups_admin_menus() {
+		self::$LOGGER->debug( "Generating admin menu" );
+		add_menu_page(
+			'SDUPS Competition',
+			'Competition',
+			SDUPS_COMPETITION_USER_CAPABILITY,
+			$this->plugin_name . '-admin',
+			array( $this, 'main_admin_page' ),
+			null,
+			4
+		);
+
+		add_submenu_page( $this->plugin_name . '-admin',
+			'SDUPS Competition',
+			'Overview',
+			SDUPS_COMPETITION_USER_CAPABILITY,
+			$this->plugin_name . '-admin',
+			array( $this, 'main_admin_page' )
+		);
+
+		add_submenu_page( $this->plugin_name . '-admin',
+			'SDUPS Competition',
+			'Create Form',
+			SDUPS_COMPETITION_USER_CAPABILITY,
+			$this->plugin_name . '-create-form',
+			array( $this, 'create_form_page' )
+		);
+
+		add_submenu_page( $this->plugin_name . '-admin',
+			'SDUPS Competition',
+			'Voting Forms',
+			SDUPS_COMPETITION_USER_CAPABILITY,
+			$this->plugin_name . '-forms-admin',
+			array( $this, 'forms_admin_page' )
+		);
+	}
+
+	public function main_admin_page() {
+		self::$LOGGER->debug( "Generating main admin page" );
+		if ( current_user_can( SDUPS_COMPETITION_USER_CAPABILITY ) ) {
+			require_once plugin_dir_path( __FILE__ ) . 'partials/' . $this->plugin_name . '-main-admin-display.php';
+		}
+	}
+
+	public function create_form_page() {
+		self::$LOGGER->debug( "Generating form creation page" );
+		if ( current_user_can( SDUPS_COMPETITION_USER_CAPABILITY ) ) {
+			$subtitle = 'test';
+			require_once plugin_dir_path( __FILE__ ) . 'partials/' . $this->plugin_name . '-create-form-display.php';
+		}
+	}
+
+	public function forms_admin_page() {
+		self::$LOGGER->debug( "Generating forms admin page" );
+		if ( current_user_can( SDUPS_COMPETITION_USER_CAPABILITY ) ) {
+			require_once plugin_dir_path( __FILE__ ) . 'partials/' . $this->plugin_name . '-forms-admin-display.php';
+		}
+	}
+
+	private function get_submissions_overview( $month = '' ) {
+
+	}
 }
+
+SDUPS_Competition_Admin::$LOGGER = new SDUPS_Competition_Logger( SDUPS_Competition_Admin::class,
+	SDUPS_Competition_Log_Level::DEBUG );
