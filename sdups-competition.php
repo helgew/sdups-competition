@@ -35,6 +35,7 @@ if ( ! defined( 'WPINC' ) ) {
 define( 'SDUPS_COMPETITION_VERSION', '1.0.0' );
 define( 'SDUPS_COMPETITION_POST_TYPE', 'sdups-competition' );
 define( 'SDUPS_COMPETITION_USER_CAPABILITY', 'manage_sdups_competitions' );
+define( 'SDUPS_COMPETITION_PLUGIN_NAME', 'sdups-competition' );
 
 /**
  * The code that runs during plugin activation.

@@ -1,5 +1,7 @@
 <?php
-if ( ! defined( 'WPINC' ) ) die;
+if ( ! defined( 'WPINC' ) ) {
+	die;
+}
 
 /**
  * Provide a admin area view for the plugin
@@ -13,9 +15,17 @@ if ( ! defined( 'WPINC' ) ) die;
  * @subpackage SDUPS_Competition/admin/partials
  */
 ?>
-
 <div class="wrap">
     <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-    <h2>Overview</h2>
-    <?php $submissions = $this->get_submissions_overview() ?>
+    <h2>Overview & Settings</h2>
+    <h2 class="nav-tab-wrapper">
+        <a href="#" data="submissions" class="nav-tab nav-tab-active">Current Submissions</a>
+        <a href="#" data="forms" class="nav-tab">Voting Forms</a>
+        <a href="#" data="settings" class="nav-tab">Settings</a>
+    </h2>
+    <div id="content">
+        <div id="submissions" style="display: none">Current Submissions Content</div>
+        <div id="forms" style="display: none">Voting Forms</div>
+        <div id="settings" style="display: none">Settings Content</div>
+    </div>
 </div>

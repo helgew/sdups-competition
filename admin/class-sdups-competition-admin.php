@@ -43,6 +43,12 @@ class SDUPS_Competition_Admin {
 	private $version;
 
 	/**
+	 * The context of this class. Used to store stuff for the different screens.
+	 * @var array
+	 */
+	private $context = array();
+
+	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @param string $plugin_name The name of this plugin.
@@ -51,9 +57,10 @@ class SDUPS_Competition_Admin {
 	 * @since    1.0.0
 	 */
 	public function __construct( $plugin_name, $version ) {
-
 		$this->plugin_name = $plugin_name;
 		$this->version     = $version;
+
+		include_once plugin_dir_path( __FILE__ ) . 'class-' . $this->plugin_name . '-admin-help.php';
 	}
 
 	/**
@@ -74,7 +81,6 @@ class SDUPS_Competition_Admin {
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
-
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/sdups-competition-admin.css', array(), $this->version, 'all' );
 
 	}
@@ -104,6 +110,7 @@ class SDUPS_Competition_Admin {
 
 	public function add_sdups_admin_menus() {
 		self::$LOGGER->debug( "Generating admin menu" );
+
 		add_menu_page(
 			'SDUPS Competition',
 			'Competition',
@@ -114,13 +121,15 @@ class SDUPS_Competition_Admin {
 			4
 		);
 
-		add_submenu_page( $this->plugin_name . '-admin',
+		$main_page = add_submenu_page( $this->plugin_name . '-admin',
 			'SDUPS Competition',
 			'Overview',
 			SDUPS_COMPETITION_USER_CAPABILITY,
 			$this->plugin_name . '-admin',
 			array( $this, 'main_admin_page' )
 		);
+
+		$help = new SDUPS_Competition_Admin_Help( $main_page, $this->plugin_name );
 
 		add_submenu_page( $this->plugin_name . '-admin',
 			'SDUPS Competition',
@@ -142,6 +151,7 @@ class SDUPS_Competition_Admin {
 	public function main_admin_page() {
 		self::$LOGGER->debug( "Generating main admin page" );
 		if ( current_user_can( SDUPS_COMPETITION_USER_CAPABILITY ) ) {
+			$submission_forms  = SDUPS_Competition_Submission_Forms::instance();
 			require_once plugin_dir_path( __FILE__ ) . 'partials/' . $this->plugin_name . '-main-admin-display.php';
 		}
 	}
@@ -159,10 +169,6 @@ class SDUPS_Competition_Admin {
 		if ( current_user_can( SDUPS_COMPETITION_USER_CAPABILITY ) ) {
 			require_once plugin_dir_path( __FILE__ ) . 'partials/' . $this->plugin_name . '-forms-admin-display.php';
 		}
-	}
-
-	private function get_submissions_overview( $month = '' ) {
-
 	}
 }
 

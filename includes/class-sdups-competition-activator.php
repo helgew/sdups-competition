@@ -1,16 +1,6 @@
 <?php
 
 /**
- * Fired during plugin activation
- *
- * @link       https://github.com/helgew/sdups-competition
- * @since      1.0.0
- *
- * @package    SDUPS_Competition
- * @subpackage SDUPS_Competition/includes
- */
-
-/**
  * Fired during plugin activation.
  *
  * This class defines all code necessary to run during the plugin's activation.
@@ -42,6 +32,9 @@ class SDUPS_Competition_Activator {
 	 * @since    1.0.0
 	 */
 	public static function activate() {
+		// Create our database tables
+		self::create_db();
+
 		// Create the competition user, if necessary, and assign our capability to them
 		self::find_or_create_competition_user();
 
@@ -50,6 +43,12 @@ class SDUPS_Competition_Activator {
 
 		// Clear the permalinks after the post type has been registered.
 		flush_rewrite_rules();
+	}
+
+	private static function create_db() {
+		require_once plugin_dir_path(__DIR__) . 'includes/class-' .
+		             SDUPS_COMPETITION_PLUGIN_NAME . '-db.php';
+		SDUPS_Competition_DB::create_db();
 	}
 
 	/**

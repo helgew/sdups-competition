@@ -1,32 +1,42 @@
-(function( $ ) {
-	'use strict';
+(function ($) {
+    'use strict';
+    $(document).ready(function () {
+        hideAll();
 
-	/**
-	 * All of the code for your admin-facing JavaScript source
-	 * should reside in this file.
-	 *
-	 * Note: It has been assumed you will write jQuery code here, so the
-	 * $ function reference has been prepared for usage within the scope
-	 * of this function.
-	 *
-	 * This enables you to define handlers, for when the DOM is ready:
-	 *
-	 * $(function() {
-	 *
-	 * });
-	 *
-	 * When the window is loaded:
-	 *
-	 * $( window ).load(function() {
-	 *
-	 * });
-	 *
-	 * ...and/or other possibilities.
-	 *
-	 * Ideally, it is not considered best practise to attach more than a
-	 * single DOM-ready or window-load handler for a particular page.
-	 * Although scripts in the WordPress core, Plugins and Themes may be
-	 * practising this, we should strive to set a better example in our own work.
-	 */
+        var activeSection = $('h2.nav-tab-wrapper > a.nav-tab-active');
+        if (activeSection.length != 1) {
+            setActiveOnly('submissions');
+            activeSection = $('h2.nav-tab-wrapper > a.nav-tab-active');
+        }
 
-})( jQuery );
+        showContent($(getSectionId(activeSection)));
+
+        $('h2.nav-tab-wrapper > a').click(function () {
+            hideAll();
+            showContent($(getSectionId($(this))));
+            setActiveOnly($(this).attr('data'));
+        });
+    });
+
+    function setActiveOnly(section) {
+        $('h2.nav-tab-wrapper > a').each(function () {
+            $(this).removeClass('nav-tab-active');
+            if ($(this).attr('data') == section) {
+                $(this).addClass('nav-tab-active');
+            }
+        });
+    }
+
+    function getSectionId(link) {
+        return '#' + link.attr('data');
+    }
+
+    function showContent(div) {
+        div.show();
+    }
+
+    function hideAll() {
+        $('#content > div').hide();
+    }
+
+})(jQuery);
