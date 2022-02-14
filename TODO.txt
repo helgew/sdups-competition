@@ -1,0 +1,2 @@
+- avoid redundant rows in the submissions form table
+
