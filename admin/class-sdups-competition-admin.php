@@ -226,6 +226,12 @@ class SDUPS_Competition_Admin {
 		$data->action = sanitize_text_field( $data->action );
 
 		switch ( $data->action ) {
+			case 'clean_start':
+				SDUPS_Competition_DB::remove_db();
+				SDUPS_Competition_DB::create_db();
+				$data->url = sanitize_url( $data->url );
+				$response  = [ 'status' => 302, 'url' => $data->url ];
+				break;
 			case 'set_submission_url':
 				$data->url = sanitize_url( $data->url );
 				delete_option( $this->submission_url_option );

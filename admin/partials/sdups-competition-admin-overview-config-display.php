@@ -14,6 +14,15 @@ if ( ! defined( 'WPINC' ) ) {
  */
 ?>
 <div class="forms-container">
+    <div id="clean-start-form-container" style="margin-top: 40px;">
+        <form action="" method="post" class="ajax" enctype="multipart/form-data" id="clean-start-form">
+            <label>
+                <input type="hidden" name="action" value="clean_start">
+                <input type="hidden" name="url" value="<?= admin_url( "admin.php?" . http_build_query($_GET) ) ?>">
+                <input type="submit" class="submitbtn" value="Clean Start">
+            </label>
+        </form>
+    </div>
     <div id="submission-form-form-container">
         <form action="" method="post" class="ajax" enctype="multipart/form-data" id="submission-form-form">
             <h3>STEP 1: Submission Page</h3>

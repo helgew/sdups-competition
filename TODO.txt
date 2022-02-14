@@ -1,2 +1,3 @@
 - avoid redundant rows in the submissions form table
+- remove clean start button
 
