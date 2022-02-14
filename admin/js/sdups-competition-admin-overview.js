@@ -17,38 +17,7 @@
             admin.init(overviewSuccess);
 
             if (onSubmissionsTab) {
-                submissionsTable.DataTable({
-                    "ajax": {
-                        "url": cpm_object.ajax_url,
-                        "data": function (data) {
-                            data['action'] = "process_ajax";
-                            data['data'] = '{"action":"get_submissions"}';
-                        },
-                        "type": "POST",
-                        "error": function (response) {
-                            admin.handleAjaxError(fieldsForm, response.responseJSON.data);
-                        }
-                    },
-                    "columns": [
-                        {"data": "name"},
-                        {"data": "email"},
-                        {"data": "date"},
-                        {"data": "division"},
-                        {"data": "category"},
-                        {
-                            "data": "upload",
-                            "className": 'dt-body-center',
-                            "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
-                                $(nTd).html(getLinkForUpload(oData.upload));
-                            }
-                        },
-                    ],
-                    "order": [[2, "desc"]],
-                    "processing": true,
-                    "language": {
-                        processing: '<i class="fa fa-spinner fa-spin fa-2x fa-fw"></i><span class="sr-only">Loading...</span> '
-                    }
-                });
+                admin.submissionsTable(submissionsTable);
             } else if (onConfigTab) {
                 fieldsForm.on('submit', function (e) {
                     e.preventDefault();
@@ -178,11 +147,6 @@
                 html += '<option value="' + option.value + '">' + option.name + '</option>';
             }
             return html;
-        }
-
-        function getLinkForUpload(url) {
-            return '<a href="' + url + '">' +
-                (url !== '' && url.endsWith('4') ? 'video' : 'image') + '</a>'
         }
     }
 )(jQuery);
