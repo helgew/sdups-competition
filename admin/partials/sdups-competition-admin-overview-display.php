@@ -3,7 +3,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-$main_menu_slug = SDUPS_Competition_Admin::get_main_menu_slug();
+$menu_slug = SDUPS_Competition_Admin::get_overview_menu_slug();
 //Get the active tab from the $_GET param
 $default_tab = null;
 $tab         = $_GET['tab'] ?? $default_tab;
@@ -24,11 +24,11 @@ $tab         = $_GET['tab'] ?? $default_tab;
     <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
     <h2>Overview & Settings</h2>
     <h2 class="nav-tab-wrapper">
-        <a href="?page=<?= $main_menu_slug ?>" data="submissions"
+        <a href="?page=<?= $menu_slug ?>" data="submissions"
            class="nav-tab <?php if ( $tab === null ): ?>nav-tab-active<?php endif; ?>">Current Submissions</a>
-        <a href="?page=<?= $main_menu_slug ?>&tab=forms" data="forms"
+        <a href="?page=<?= $menu_slug ?>&tab=forms" data="forms"
            class="nav-tab <?php if ( $tab === 'forms' ): ?>nav-tab-active<?php endif; ?>">Voting Forms</a>
-        <a href="?page=<?= $main_menu_slug ?>&tab=config" data="config"
+        <a href="?page=<?= $menu_slug ?>&tab=config" data="config"
            class="nav-tab <?php if ( $tab === 'config' ): ?>nav-tab-active<?php endif; ?>">Configuration</a>
     </h2>
     <div id="content">

@@ -1,6 +1,6 @@
-(function ($) {
-        'use strict';
+'use strict';
 
+(function ($) {
         var previewTable = null;
         var fieldsForm = null;
         var submissionsTable = null;
@@ -13,38 +13,8 @@
             var onConfigTab = fieldsForm.length != 0;
             var onSubmissionsTab = submissionsTable.length != 0;
 
-            // WP makes notices jump around :(
-            $('.notice').show();
-
-            $('form.ajax').on('submit', function (e) {
-                e.preventDefault();
-                var data = $(this).serializeArray().reduce(
-                    function (o, kv) {
-                        o[kv.name] = kv.value;
-                        return o;
-                    }, {});
-                var that = $(this);
-                $.ajax({
-                    url: cpm_object.ajax_url,
-                    type: "POST",
-                    dataType: 'json',
-                    data: {
-                        action: 'process_ajax',
-                        data: JSON.stringify(data)
-                    }, success: function (response) {
-                        that.find('.error-message').hide();
-                        if ('status' in response && response.status === 302) {
-                            window.location.replace(response.url);
-                        }
-                        replaceFormElements(response);
-                        if (onConfigTab) {
-                            checkFormSelections(true, that);
-                        }
-                    }, error: function (response) {
-                        handleAjaxError(that, response.responseJSON.data);
-                    }
-                });
-            });
+            var admin = new $.SDUPSAdminCommon();
+            admin.init(overviewSuccess);
 
             if (onSubmissionsTab) {
                 submissionsTable.DataTable({
@@ -56,7 +26,7 @@
                         },
                         "type": "POST",
                         "error": function (response) {
-                            handleAjaxError(fieldsForm, response.responseJSON.data);
+                            admin.handleAjaxError(fieldsForm, response.responseJSON.data);
                         }
                     },
                     "columns": [
@@ -153,13 +123,11 @@
             }
         });
 
-        function handleAjaxError(form, data) {
-            var div = form.find(".error-message");
-            div.html($('<div/>', {
-                class: "notice notice-error",
-                style: "display: block;"
-            }).append($('<p/>').text(data.message)));
-            div.show();
+        function overviewSuccess(form, response) {
+            replaceFormElements(response);
+            if (onConfigTab) {
+                checkFormSelections(true, form);
+            }
         }
 
         function checkFormSelections(isNew, form) {
@@ -217,5 +185,4 @@
                 (url !== '' && url.endsWith('4') ? 'video' : 'image') + '</a>'
         }
     }
-)
-(jQuery);
+)(jQuery);

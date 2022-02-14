@@ -87,12 +87,16 @@ class SDUPS_Competition_Admin {
 		include_once plugin_dir_path( __FILE__ ) . 'class-' . $this->plugin_name . '-admin-notices.php';
 	}
 
-	public static function get_main_menu_slug() {
+	public static function get_admin_slug() {
+		return SDUPS_COMPETITION_PLUGIN_NAME . '-admin';
+	}
+
+	public static function get_overview_menu_slug() {
 		return self::get_admin_slug() . '-overview';
 	}
 
-	public static function get_admin_slug() {
-		return SDUPS_COMPETITION_PLUGIN_NAME . '-admin';
+	public static function get_create_form_menu_slug() {
+		return self::get_admin_slug() . '-create-form';
 	}
 
 	private function init_context() {
@@ -124,16 +128,24 @@ class SDUPS_Competition_Admin {
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
-		$handle = $this->plugin_name . '-admin-script';
+		$common_script_handle = SDUPS_COMPETITION_PLUGIN_NAME . '-admin-script';
 
-		wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'js/sdups-competition-admin.js', array( 'jquery' ), $this->version, false );
+		wp_register_script( $common_script_handle,
+			plugin_dir_url( __FILE__ ) . 'js/' . SDUPS_COMPETITION_PLUGIN_NAME . '-admin-common.js',
+			array( 'jquery' ), $this->version, false );
 
 		$translation_array = array(
 			'ajax_url' => admin_url( 'admin-ajax.php' )
 		);
-		wp_localize_script( $handle, 'cpm_object', $translation_array );
+		wp_localize_script( $common_script_handle, 'cpm_object', $translation_array );
 
-		wp_enqueue_script( $handle );
+		wp_enqueue_script( $common_script_handle );
+
+		if ( $_REQUEST['page'] === self::get_overview_menu_slug() ) {
+			wp_enqueue_script( SDUPS_COMPETITION_PLUGIN_NAME . '-admin-overview-script',
+				plugin_dir_url( __FILE__ ) . 'js/' . SDUPS_COMPETITION_PLUGIN_NAME . '-admin-overview.js',
+				array( $common_script_handle ), $this->version, false );
+		}
 
 		wp_register_script( 'dataTables', '//cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js' );
 		wp_enqueue_script( 'dataTables' );
@@ -145,7 +157,7 @@ class SDUPS_Competition_Admin {
 		self::$LOGGER->debug( "Generating admin menu" );
 
 		$admin_slug = self::get_admin_slug();
-		$main_menu  = self::get_main_menu_slug();
+		$main_menu  = self::get_overview_menu_slug();
 
 		add_menu_page(
 			'SDUPS Competition',
@@ -171,7 +183,7 @@ class SDUPS_Competition_Admin {
 			'SDUPS Competition',
 			'Create Form',
 			SDUPS_COMPETITION_USER_CAPABILITY,
-			$admin_slug . '-create-form',
+			self::get_create_form_menu_slug(),
 			array( $this, 'admin_create_form_page' )
 		);
 
@@ -263,7 +275,7 @@ class SDUPS_Competition_Admin {
 			case 'save_submission_form':
 				$form = SDUPS_Competition_Submission_Form::from_preview_form( $data );
 				$form->save();
-				$url      = admin_url( 'admin.php' ) . '?page=' . self::get_main_menu_slug();
+				$url      = admin_url( 'admin.php' ) . '?page=' . self::get_overview_menu_slug();
 				$response = [ 'status' => 302, 'url' => $url ];
 				break;
 			default:
