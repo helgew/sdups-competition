@@ -17,72 +17,14 @@
             admin.init(overviewSuccess);
 
             if (onSubmissionsTab) {
-                admin.submissionsTable(submissionsTable);
+                admin.submissionsTable(submissionsTable, fieldsForm);
             } else if (onConfigTab) {
                 fieldsForm.on('submit', function (e) {
                     e.preventDefault();
                     $('#confirmation-form-container').show();
                     if (previewTable === null) {
-                        previewTable = $('#submission-data-preview').DataTable({
-                            "ajax": {
-                                "url": cpm_object.ajax_url,
-                                "data": function (data) {
-                                    data['action'] = "process_ajax";
-                                    var formData = fieldsForm.serializeArray().reduce(
-                                        function (o, kv) {
-                                            o[kv.name] = kv.value;
-                                            return o;
-                                        }, {});
-                                    data['data'] = JSON.stringify(formData);
-                                },
-                                "type": "POST",
-                                "dataSrc": function (json) {
-                                    fieldsForm.find('.error-message').hide();
-                                    var form = $('#confirmation-form');
-                                    Object.keys(json.meta).forEach(key => {
-                                        if (key !== 'action') {
-                                            var fields = form.find('input[name="' + key + '"');
-                                            if (fields.length > 1) {
-                                                fields.remove();
-                                                fields = [];
-                                            }
-                                            if (fields.length === 0) {
-                                                $('<input>').attr({
-                                                    type: 'hidden',
-                                                    name: key,
-                                                    value: json.meta[key]
-                                                }).appendTo(form);
-                                            } else {
-                                                fields[0].value = json.meta[key];
-                                            }
-                                        }
-                                    });
-                                    return json.data;
-                                },
-                                "error": function (response) {
-                                    handleAjaxError(fieldsForm, response.responseJSON.data);
-                                }
-                            },
-                            "columns": [
-                                {"data": "name"},
-                                {"data": "email"},
-                                {"data": "date"},
-                                {"data": "division"},
-                                {"data": "category"},
-                                {
-                                    "data": "upload",
-                                    "className": 'dt-body-center',
-                                    "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
-                                        $(nTd).html(getLinkForUpload(oData.upload));
-                                    }
-                                },
-                            ],
-                            "order": [[2, "desc"]],
-                            "processing": true,
-                            "language": {
-                                processing: '<i class="fa fa-spinner fa-spin fa-2x fa-fw"></i><span class="sr-only">Loading...</span> '
-                            }
-                        });
+                        previewTable = admin.submissionsTable($('#submission-data-preview'), fieldsForm,
+                            processFieldsFormData, previewTableDataSource);
                     } else {
                         previewTable.ajax.reload();
                     }
@@ -97,6 +39,39 @@
             if (onConfigTab) {
                 checkFormSelections(true, form);
             }
+        }
+
+        function processFieldsFormData(data) {
+            var formData = fieldsForm.serializeArray().reduce(
+                function (o, kv) {
+                    o[kv.name] = kv.value;
+                    return o;
+                }, {});
+            data['data'] = JSON.stringify(formData);
+        }
+
+        function previewTableDataSource(json) {
+            fieldsForm.find('.error-message').hide();
+            var form = $('#confirmation-form');
+            Object.keys(json.meta).forEach(key => {
+                if (key !== 'action') {
+                    var fields = form.find('input[name="' + key + '"');
+                    if (fields.length > 1) {
+                        fields.remove();
+                        fields = [];
+                    }
+                    if (fields.length === 0) {
+                        $('<input>').attr({
+                            type: 'hidden',
+                            name: key,
+                            value: json.meta[key]
+                        }).appendTo(form);
+                    } else {
+                        fields[0].value = json.meta[key];
+                    }
+                }
+            });
+            return json.data;
         }
 
         function checkFormSelections(isNew, form) {
