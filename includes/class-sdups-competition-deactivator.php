@@ -34,6 +34,9 @@ class SDUPS_Competition_Deactivator {
 		unregister_post_type( SDUPS_COMPETITION_POST_TYPE );
 		// Clear the permalinks to remove our post type's rules from the database.
 		flush_rewrite_rules();
+
+		// Deactivate (maybe!) font-awesome
+		FortAwesome\FontAwesome_Loader::maybe_deactivate();
 	}
 
 }

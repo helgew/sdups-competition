@@ -106,34 +106,40 @@ class SDUPS_Competition {
 		 * The class responsible for orchestrating the actions and filters of the
 		 * core plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-' .
+		require_once plugin_dir_path( __DIR__ ) . 'includes/class-' .
 		             $this->get_plugin_name() . '-loader.php';
 
 		/**
 		 * The class responsible for defining internationalization functionality
 		 * of the plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-' .
+		require_once plugin_dir_path( __DIR__ ) . 'includes/class-' .
 		             $this->get_plugin_name() . '-i18n.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-' .
+		require_once plugin_dir_path( __DIR__ ) . 'admin/class-' .
 		             $this->get_plugin_name() . '-admin.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-' .
+		require_once plugin_dir_path( __DIR__ ) . 'public/class-' .
 		             $this->get_plugin_name() . '-public.php';
 
 		/**
 		 * The class that handles all its subclasses and the DB schema.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-' .
+		require_once plugin_dir_path( __DIR__ ) . 'includes/class-' .
 		             $this->get_plugin_name() . '-db.php';
+
+		/**
+		 * The font-awesome package for awesome fonts.
+		 */
+		require_once plugin_dir_path( __DIR__ ) .
+		             'vendor/fortawesome/wordpress-fontawesome/index.php';
 
 		SDUPS_Competition_DB::load_dependencies();
 
@@ -172,6 +178,11 @@ class SDUPS_Competition {
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_sdups_admin_menus' );
+		$this->loader->add_action( 'wp_ajax_process_ajax', $plugin_admin, 'process_ajax' );
+		$this->loader->add_action( 'wp_ajax_nopriv_process_ajax', $plugin_admin, 'process_ajax' );
+
+
+		$this->loader->add_action( 'admin_notices', SDUPS_Competition_Admin_Notices::instance(), 'display' );
 	}
 
 	/**
@@ -231,11 +242,24 @@ class SDUPS_Competition {
 	}
 }
 
+use function FortAwesome\fa;
+
+add_action(
+	'font_awesome_preferences',
+	function () {
+		fa()->register(
+			array(
+				'name' => 'plugin ' . SDUPS_COMPETITION_PLUGIN_NAME
+			)
+		);
+	}
+);
+
 /**
  * The logging class. Need to put this here or in the plugin's php file to be able to log in
  * this class.
  */
-require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-sdups-competition-logger.php';
+require_once plugin_dir_path( __DIR__ ) . 'includes/class-sdups-competition-logger.php';
 
 SDUPS_Competition::$LOGGER = new SDUPS_Competition_Logger( SDUPS_Competition::class,
 	SDUPS_Competition_Log_Level::DEBUG );

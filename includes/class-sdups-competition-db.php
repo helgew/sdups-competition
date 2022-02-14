@@ -6,9 +6,10 @@ abstract class SDUPS_Competition_DB {
 	static $LOGGER;
 
 	abstract protected function get_table_name();
+
 	abstract protected function create_table();
 
-	protected function load_data( $query = '' ) {
+	protected function load_data() {
 		global $wpdb;
 
 		$sql             = "SELECT `column_name`, `column_comment` " .
@@ -22,13 +23,22 @@ abstract class SDUPS_Competition_DB {
 			$data['headers'][ $row['column_name'] ] = $row['column_comment'];
 		}
 
-		if ( $query === '' ) {
-			$query = "SELECT * FROM " . $this->get_table_name();
-		}
-
-		$data['rows'] = $wpdb->get_results( $query );
+		$sql             = "SELECT * FROM " . $this->get_table_name();
+		$data['entries'] = $this->convert_rows_to_objects( $wpdb->get_results( $sql ) );
 
 		return $data;
+	}
+
+	/**
+	 * Convert the rows retrieved from the table to objects. Override in the child class to do
+	 * more than just returning the rows.
+	 *
+	 * @param array $rows the rows loaded from the database
+	 *
+	 * @return array an array of objects
+	 */
+	protected function convert_rows_to_objects( array $rows ): array {
+		return $rows;
 	}
 
 	public static function load_dependencies() {

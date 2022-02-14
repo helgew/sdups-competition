@@ -6,3 +6,24 @@
 a.nav-tab:focus, .contextual-help-tabs a:focus, button:focus {
     box-shadow: none;
 }
+
+.notice {
+    display: none;
+}
+
+.inline {
+    display: inline;
+}
+
+caption {
+    font-size: larger;
+    font-weight: bold;
+}
+
+.forms-container > div > form {
+    margin-bottom: 30px;
+}
+
+.error-message {
+    display: none;
+}

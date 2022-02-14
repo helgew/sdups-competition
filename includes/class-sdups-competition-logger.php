@@ -1,8 +1,6 @@
 <?php
 require_once plugin_dir_path( __FILE__ ) . 'class-sdups-competition-log-levels.php';
 
-//date_default_timezone_set(wp_timezone_string());
-
 class SDUPS_Competition_Logger {
 	private $class;
 	private $level;

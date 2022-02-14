@@ -43,6 +43,9 @@ class SDUPS_Competition_Activator {
 
 		// Clear the permalinks after the post type has been registered.
 		flush_rewrite_rules();
+
+		// Initialize font-awesome
+		FortAwesome\FontAwesome_Loader::initialize();
 	}
 
 	private static function create_db() {

@@ -13,4 +13,4 @@ if ( ! defined( 'WPINC' ) ) {
  * @subpackage SDUPS_Competition/admin/partials
  */
 ?>
-<h2>This is the helpful settings help section with some help to be helpful.</h2>
+<h2>This is the helpful configuration help section with some help to be helpful.</h2>

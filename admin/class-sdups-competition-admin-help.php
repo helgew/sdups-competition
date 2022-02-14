@@ -22,7 +22,7 @@ class SDUPS_Competition_Admin_Help {
 			array(
 				'id' => 'main-screen-overview',
 				'title' => 'Overview',
-				'content' => $this->content('main-admin'),
+				'content' => $this->content('admin-overview'),
 			)
 		);
 
@@ -30,7 +30,7 @@ class SDUPS_Competition_Admin_Help {
 			array(
 				'id' => 'main-screen-submissions',
 				'title' => 'Current Submissions',
-				'content' => $this->content('main-admin-submissions'),
+				'content' => $this->content('admin-overview-submissions'),
 			)
 		);
 
@@ -38,15 +38,15 @@ class SDUPS_Competition_Admin_Help {
 			array(
 				'id' => 'main-screen-forms',
 				'title' => 'Voting Forms',
-				'content' => $this->content('main-admin-forms'),
+				'content' => $this->content('admin-overview-forms'),
 			)
 		);
 
 		$screen->add_help_tab(
 			array(
 				'id' => 'main-screen-settings',
-				'title' => 'Settings',
-				'content' => $this->content('main-admin-settings'),
+				'title' => 'Configuration',
+				'content' => $this->content('admin-overview-config'),
 			)
 		);
 	}

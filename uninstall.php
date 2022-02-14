@@ -27,5 +27,7 @@
 
 // If uninstall not called from WordPress, then exit.
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
+	// Uninstall (maybe!) font-awesome
+	FortAwesome\FontAwesome_Loader::maybe_uninstall();
 	exit;
 }
