@@ -27,6 +27,11 @@
 
 // If uninstall not called from WordPress, then exit.
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
+
+	require_once plugin_dir_path( __DIR__ ) . 'includes/class-' .
+	             SDUPS_COMPETITION_PLUGIN_NAME . '-db.php';
+	SDUPS_Competition_DB::remove_db();
+
 	// Uninstall (maybe!) font-awesome
 	FortAwesome\FontAwesome_Loader::maybe_uninstall();
 	exit;

@@ -53,29 +53,62 @@ abstract class SDUPS_Competition_DB {
 	 * Create our database schema.
 	 */
 	public static function create_db() {
-		foreach ( get_declared_classes() as $class ) {
-			if ( is_subclass_of( $class, self::class ) ) {
-				self::$LOGGER->debug( "Calling create_table in $class" );
-				if ( method_exists( $class, 'instance' ) ) {
-					$instance = $class::instance();
-				} else {
-					$instance = new $class;
-				}
-				$instance->create_table();
-			}
+		$instances = self::get_child_class_instances();
+		foreach ( $instances as $instance ) {
+			self::$LOGGER->debug( "Calling create_table in " . get_class( $instance ) );
+			$instance->create_table();
 		}
 
 		delete_option( self::get_version_option() );
 		add_option( self::get_version_option(), self::$DB_VERSION );
 	}
 
-	protected static function requires_update( $table_name ) {
+	/**
+	 * Remove our DB schema. Permanently! It'll be gone!!
+	 */
+	public static function remove_db() {
+		global $wpdb;
+
+		delete_option( self::get_version_option() );
+
+		$instances = self::get_child_class_instances();
+		$wpdb->query( 'SET FOREIGN_KEY_CHECKS = 0' );
+		foreach ( $instances as $instance ) {
+			self::$LOGGER->debug( "Removing tables of " . get_class( $instance ) );
+			$wpdb->query( 'DROP TABLE IF EXISTS ' .
+			              $instance->get_table_name() );
+		}
+		$wpdb->query( 'SET FOREIGN_KEY_CHECKS = 1;' );
+	}
+
+	protected static function requires_update( $table_name ): bool {
 		global $wpdb;
 
 		$current_version = get_option( self::get_version_option(), self::$DB_VERSION );
 
 		return $wpdb->get_var( "show tables like '{$table_name}'" ) != $table_name ||
 		       version_compare( $current_version, self::$DB_VERSION ) < 0;
+	}
+
+	private static function get_child_class_instances(): array {
+		$intances = array();
+		foreach ( get_declared_classes() as $class ) {
+			if ( is_subclass_of( $class, self::class ) ) {
+				$intances[] = self::get_instance( $class );
+			}
+		}
+
+		return $intances;
+	}
+
+	private static function get_instance( string $class ): SDUPS_Competition_DB {
+		if ( method_exists( $class, 'instance' ) ) {
+			$instance = $class::instance();
+		} else {
+			$instance = new $class;
+		}
+
+		return $instance;
 	}
 
 	private static function get_version_option() {
