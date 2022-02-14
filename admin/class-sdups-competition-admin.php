@@ -223,8 +223,11 @@ class SDUPS_Competition_Admin {
 
 		$data = json_decode( stripslashes( $data ) );
 
+		$data->action = sanitize_text_field( $data->action );
+
 		switch ( $data->action ) {
 			case 'set_submission_url':
+				$data->url = sanitize_url( $data->url );
 				delete_option( $this->submission_url_option );
 				add_option( $this->submission_url_option, $data->url );
 				$forms    = $this->parse_submission_page( $data->url );
@@ -239,8 +242,9 @@ class SDUPS_Competition_Admin {
 				];
 				break;
 			case 'set_submission_form_id':
-				$fields   = $this->parse_submission_form( $data->submission_form );
-				$response = $this->get_field_choices( $fields );
+				$data->submission_form = sanitize_text_field( $data->submission_form );
+				$fields                = $this->parse_submission_form( $data->submission_form );
+				$response              = $this->get_field_choices( $fields );
 				break;
 			case 'get_submissions':
 				$form     = SDUPS_Competition_Submission_Forms::get_active_form();
