@@ -51,12 +51,12 @@
                 }
             },
 
-            submissionsTable: function (element, form, processDataFunction, getDataSourceFunction, columns) {
+            submissionsTable: function (element, form, processDataFunction, getDataSourceFunction, options) {
                 if (!form) {
                     form = element.closest('form');
                 }
 
-                return element.DataTable({
+                var config = {
                     "ajax": {
                         "url": cpm_object.ajax_url,
                         "data": function (data) {
@@ -74,13 +74,20 @@
                             this.handleAjaxError(form, response.responseJSON.data);
                         }
                     },
-                    "columns": columns ? columns : this.submissionsTableDefaultColumns,
+                    "rowId": "entry_id",
+                    "columns": this.submissionsTableDefaultColumns,
                     "order": [[2, "desc"]],
                     "processing": true,
                     "language": {
                         processing: '<i class="fa fa-spinner fa-spin fa-2x fa-fw"></i><span class="sr-only">Loading...</span> '
                     }
-                });
+                };
+
+                if (options) {
+                    config = {...config, ...options};
+                }
+
+                return element.DataTable(config);
             },
 
             submissionsTableDefaultColumns: [
@@ -100,7 +107,7 @@
         }
 
         function getLinkForUpload(url) {
-            return '<a href="' + url + '">' +
+            return '<a href="' + url + '" target="_blank">' +
                 (url !== '' && url.endsWith('4') ? 'video' : 'image') + '</a>'
         }
     }

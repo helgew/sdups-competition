@@ -194,24 +194,28 @@ class SDUPS_Competition_Submission_Form {
 		SDUPS_Competition_Submission_Forms::save( $this );
 	}
 
-	public function get_submissions(): array {
+	public function get_submissions( array $filters = [] ): array {
 		global $wpdb;
 
-		$ps = $wpdb->prepare(
-			"SELECT entry_id," .
-			"    MAX(CASE WHEN field_id = %d THEN value END) AS name," .
-			"    MAX(CASE WHEN field_id = %d THEN value END) AS email," .
-			"    MAX(CASE WHEN field_id = %d THEN value END) AS division," .
-			"    MAX(CASE WHEN field_id = %d THEN value END) AS category," .
-			"    MAX(CASE WHEN field_id = %d THEN value END) AS upload," .
-			"    MAX(date) AS date" .
-			" FROM " . $wpdb->prefix . 'wpforms_entry_fields' .
-			" WHERE form_id = %d" .
-			" GROUP BY entry_id",
+		$sql = sprintf( "SELECT entry_id," .
+		                "    MAX(CASE WHEN field_id = %d THEN value END) AS name," .
+		                "    MAX(CASE WHEN field_id = %d THEN value END) AS email," .
+		                "    MAX(CASE WHEN field_id = %d THEN value END) AS division," .
+		                "    MAX(CASE WHEN field_id = %d THEN value END) AS category," .
+		                "    MAX(CASE WHEN field_id = %d THEN value END) AS upload," .
+		                "    MAX(date) AS date" .
+		                " FROM " . $wpdb->prefix . 'wpforms_entry_fields' .
+		                " WHERE form_id = %d" .
+		                " GROUP BY entry_id",
 			$this->name_field, $this->email_field, $this->division_field,
 			$this->category_field, $this->upload_field, $this->wpforms_form_id );
 
-		$rows    = $wpdb->get_results( $ps );
+		$clause = $this->process_filters( $filters );
+		if ( $clause ) {
+			$sql = "SELECT * FROM ( $sql ) R WHERE 1 = 1 $clause";
+		}
+
+		$rows    = $wpdb->get_results( $sql );
 		$results = array();
 		foreach ( $rows as $row ) {
 			$divs    = explode( "\n", $row->division );
@@ -227,17 +231,65 @@ class SDUPS_Competition_Submission_Form {
 					$row->upload       = $uploads[0];
 					$row_clone->upload = $uploads[1];
 				}
-				$results[] = $row_clone;
-			} elseif (sizeof( $divs ) === 1 && sizeof( $uploads ) === 2 ) {
-				$row_clone           = clone $row;
+				$results[] = self::set_entry_id( $row_clone );
+			} elseif ( sizeof( $divs ) === 1 && sizeof( $uploads ) === 2 ) {
+				$row_clone         = clone $row;
 				$row_clone->upload = $uploads[0];
-				$row->upload = $uploads[1];
-				$results[] = $row_clone;
+				$row->upload       = $uploads[1];
+				$results[]         = self::set_entry_id( $row_clone );
 			} elseif ( sizeof( $divs ) === 2 && sizeof( $uploads ) === 1 && $divs[1] === 'Video' ) {
 				$row->division = $divs[1];
 			}
 
-			$results[] = $row;
+			$results[] = self::set_entry_id( $row );
+		}
+
+		return $results;
+	}
+
+	private static function set_entry_id( object $row ): object {
+		preg_match( "/.*?-([\da-z]{32})[-.].*/", $row->upload, $matches );
+		if ( sizeof( $matches ) === 1 ) {
+			$uuid = $matches[1];
+		} else {
+			$uuid = 'empty';
+		}
+		$row->entry_id = $row->entry_id . "-$uuid";
+
+		return $row;
+	}
+
+	private function process_filters( array $filters ): string {
+		$clause = '';
+		foreach ( SDUPS_Competition_Submission_Forms::get_field_attributes() as $attribute ) {
+			if ( array_key_exists( $attribute, $filters ) ) {
+				$clause = $clause . ' AND ' . $attribute;
+				if ( is_array( $filters[ $attribute ] ) ) {
+					$clause = $clause . " IN ('" . implode( "', '", $filters[ $attribute ] ) . "')";
+				} else {
+					$clause = $clause . " = '" . $filters[ $attribute ] . "'";
+				}
+			}
+		}
+
+		return $clause;
+	}
+
+	public function get_submission_categories(): array {
+		global $wpdb;
+
+		$ps      = $wpdb->prepare(
+			"SELECT MAX(date) as date, value" .
+			" FROM " . $wpdb->prefix . 'wpforms_entry_fields' .
+			" WHERE form_id = %d" .
+			"     AND field_id = %d" .
+			" GROUP BY value" .
+			" ORDER BY date desc",
+			$this->wpforms_form_id, $this->category_field );
+		$rows    = $wpdb->get_results( $ps );
+		$results = array();
+		foreach ( $rows as $row ) {
+			$results[] = $row->value;
 		}
 
 		return $results;

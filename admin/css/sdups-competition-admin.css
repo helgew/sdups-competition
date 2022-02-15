@@ -27,3 +27,7 @@ caption {
 .error-message {
     display: none;
 }
+
+tr.strikethrough {
+    color: lightgrey;
+}

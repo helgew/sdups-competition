@@ -99,14 +99,24 @@ class SDUPS_Competition_Admin {
 		return self::get_admin_slug() . '-create-form';
 	}
 
-	private function init_context() {
-		$submission_url                  = get_option( $this->submission_url_option, site_url() . '/submit-photo-and-or-video/' );
-		$this->context['submission_url'] = $submission_url;
-		$this->context['possible_forms'] = $this->parse_submission_page( $submission_url );
-		$this->context['field_attrs']    = SDUPS_Competition_Submission_Forms::get_field_attributes();
-		if ( sizeof( $this->context['possible_forms'] ) == 1 ) {
-			$this->context['formId']          = $this->context['possible_forms'][0]['value'];
-			$this->context['possible_fields'] = $this->parse_submission_form( $this->context['formId'] );
+	private function init_context( string $page ): void {
+		switch ( $page ) {
+			case 'overview':
+				$submission_url                  = get_option( $this->submission_url_option, site_url() . '/submit-photo-and-or-video/' );
+				$this->context['submission_url'] = $submission_url;
+				$this->context['possible_forms'] = $this->parse_submission_page( $submission_url );
+				$this->context['field_attrs']    = SDUPS_Competition_Submission_Forms::get_field_attributes();
+				if ( sizeof( $this->context['possible_forms'] ) == 1 ) {
+					$this->context['formId']          = $this->context['possible_forms'][0]['value'];
+					$this->context['possible_fields'] = $this->parse_submission_form( $this->context['formId'] );
+				}
+				break;
+			case 'create-forms':
+				$form = SDUPS_Competition_Submission_Forms::get_active_form();
+				if ( $form ) {
+					$this->context['categories'] = $form->get_submission_categories();
+				}
+				break;
 		}
 	}
 
@@ -141,9 +151,14 @@ class SDUPS_Competition_Admin {
 
 		wp_enqueue_script( $common_script_handle );
 
-		if ( $_REQUEST['page'] === self::get_overview_menu_slug() ) {
+		$page = $_REQUEST['page'];
+		if ( $page !== '' && $page === self::get_overview_menu_slug() ) {
 			wp_enqueue_script( SDUPS_COMPETITION_PLUGIN_NAME . '-admin-overview-script',
 				plugin_dir_url( __FILE__ ) . 'js/' . SDUPS_COMPETITION_PLUGIN_NAME . '-admin-overview.js',
+				array( $common_script_handle ), $this->version, false );
+		} elseif ( $page !== '' && $page === self::get_create_form_menu_slug() ) {
+			wp_enqueue_script( SDUPS_COMPETITION_PLUGIN_NAME . '-admin-create-form-script',
+				plugin_dir_url( __FILE__ ) . 'js/' . SDUPS_COMPETITION_PLUGIN_NAME . '-admin-create-form.js',
 				array( $common_script_handle ), $this->version, false );
 		}
 
@@ -207,7 +222,7 @@ class SDUPS_Competition_Admin {
 	public function admin_overview_page() {
 		self::$LOGGER->debug( 'Generating overview page' );
 		if ( current_user_can( SDUPS_COMPETITION_USER_CAPABILITY ) ) {
-			$this->init_context();
+			$this->init_context( 'overview' );
 			require_once plugin_dir_path( __FILE__ ) . 'partials/' . $this->plugin_name . '-admin-overview-display.php';
 		}
 	}
@@ -215,7 +230,7 @@ class SDUPS_Competition_Admin {
 	public function admin_create_form_page() {
 		self::$LOGGER->debug( 'Generating form creation page' );
 		if ( current_user_can( SDUPS_COMPETITION_USER_CAPABILITY ) ) {
-			$subtitle = 'test';
+			$this->init_context( 'create-forms' );
 			require_once plugin_dir_path( __FILE__ ) . 'partials/' . $this->plugin_name . '-admin-create-form-display.php';
 		}
 	}
@@ -277,6 +292,11 @@ class SDUPS_Competition_Admin {
 				$form->save();
 				$url      = admin_url( 'admin.php' ) . '?page=' . self::get_overview_menu_slug();
 				$response = [ 'status' => 302, 'url' => $url ];
+				break;
+			case 'get_submissions_by_category':
+				$form     = SDUPS_Competition_Submission_Forms::get_active_form();
+				$category = sanitize_text_field( $data->category );
+				$response = $this->get_submissions_for_form( $form, $data, [ 'category' => $category ] );
 				break;
 			default:
 				wp_send_json_error( [ 'message' => 'The browser request did not include the required information!' ], 400 );
@@ -343,8 +363,8 @@ class SDUPS_Competition_Admin {
 		return __( json_encode( $choices ) );
 	}
 
-	private function get_submissions_for_form( ?SDUPS_Competition_Submission_Form $form, $data ): array {
-		$submissions = $form !== null ? $form->get_submissions() : [];
+	private function get_submissions_for_form( ?SDUPS_Competition_Submission_Form $form, $data, $filter = [] ): array {
+		$submissions = $form !== null ? $form->get_submissions( $filter ) : [];
 
 		return [
 			'data' => $submissions,
