@@ -17,12 +17,12 @@ class SDUPS_Competition_Activator {
 	/**
 	 * @var string the user name authorized to set-up and score competitions.
 	 */
-	private static $user_name = 'competition';
+	private static $user_name = SDUPS_COMPETITION_USER;
 
 	/**
 	 * @var string the email address for the authorized user.
 	 */
-	private static $user_email = 'competition@sdups.org';
+	private static $user_email = SDUPS_COMPETITION_USER_EMAIL;
 
 	/**
 	 * Plugin activation hook.

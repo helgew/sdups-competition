@@ -34,6 +34,9 @@ if ( ! defined( 'WPINC' ) ) {
  */
 define( 'SDUPS_COMPETITION_VERSION', '1.0.0' );
 define( 'SDUPS_COMPETITION_POST_TYPE', 'sdups-competition' );
+define( 'SDUPS_COMPETITION_USER_EMAIL', 'competition@sdups.org' );
+define( 'SDUPS_COMPETITION_USER', 'competition' );
+define( 'SDUPS_COMPETITION_USER_NAME', 'SDUPS Competition' );
 define( 'SDUPS_COMPETITION_USER_CAPABILITY', 'manage_sdups_competitions' );
 define( 'SDUPS_COMPETITION_PLUGIN_NAME', 'sdups-competition' );
 

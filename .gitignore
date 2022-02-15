@@ -42,5 +42,5 @@ test.php
 
 vendor/
 
-# service account private key
-sdups-website-*.json
+# configuration files we need to keep secret
+config/api-secret.json

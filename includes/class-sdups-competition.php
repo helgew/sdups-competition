@@ -101,6 +101,16 @@ class SDUPS_Competition {
 	 * @access   private
 	 */
 	private function load_dependencies() {
+		/**
+		 * Load our vendor packages automatically.
+		 */
+		require_once plugin_dir_path( __DIR__ ) . 'vendor/autoload.php';
+
+		/**
+		 * The font-awesome package for awesome fonts.
+		 */
+		require_once plugin_dir_path( __DIR__ ) .
+		             'vendor/fortawesome/wordpress-fontawesome/index.php';
 
 		/**
 		 * The class responsible for orchestrating the actions and filters of the
@@ -136,10 +146,10 @@ class SDUPS_Competition {
 		             $this->get_plugin_name() . '-db.php';
 
 		/**
-		 * The font-awesome package for awesome fonts.
+		 * The class that handles access to GMail via the Google Client API.
 		 */
-		require_once plugin_dir_path( __DIR__ ) .
-		             'vendor/fortawesome/wordpress-fontawesome/index.php';
+		require_once plugin_dir_path( __DIR__ ) . 'includes/class-' .
+		             $this->get_plugin_name() . '-gmail.php';
 
 		SDUPS_Competition_DB::load_dependencies();
 
@@ -199,6 +209,7 @@ class SDUPS_Competition {
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 
+		$this->loader->add_action( 'send_mail', SDUPS_Competition_GMail::instance(), 'send_mail_delayed' );
 	}
 
 	/**
