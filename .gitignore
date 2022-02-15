@@ -35,5 +35,12 @@
 .idea/**/libraries
 
 temp*
+tmp*
+scratch*
+phpinfo.php
+test.php
 
 vendor/
+
+# service account private key
+sdups-website-*.json

@@ -3,6 +3,15 @@
         "squizlabs/php_codesniffer": "^3.6"
     },
     "require": {
-        "fortawesome/wordpress-fontawesome": "^4.1"
+        "fortawesome/wordpress-fontawesome": "^4.1",
+        "google/apiclient": "^2.12.1"
+    },
+    "scripts": {
+        "pre-autoload-dump": "Google\\Task\\Composer::cleanup"
+    },
+    "extra": {
+        "google/apiclient-services": [
+            "Gmail"
+        ]
     }
 }
