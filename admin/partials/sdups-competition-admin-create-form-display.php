@@ -17,11 +17,9 @@ if ( ! defined( 'WPINC' ) ) {
 ?>
 
 <div class="wrap">
-    <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-    <h2>Create a New Voting Form</h2>
     <div id="categories-form-container">
         <form action="" method="post" enctype="multipart/form-data" id="categories-form">
-            <h4>STEP 1: Category Selection</h4>
+            <h3>STEP 1: Category Selection</h3>
             <p>Select the category from the drop-down menu to start creating a voting form.</p>
             <div class="error-message"></div>
             <label>
@@ -40,7 +38,7 @@ if ( ! defined( 'WPINC' ) ) {
     </div>
     <div id="submissions-table-container" style="margin-top:50px; display:none;">
         <form action="" method="post" enctype="multipart/form-data" id="submissions-form">
-            <h4>STEP 2: Entry Selection</h4>
+            <h3>STEP 2: Entry Selection</h3>
             <p>In the table below, unselect any entries you do not want to include in the voting form before clicking
                 the button.</p>
             <label>

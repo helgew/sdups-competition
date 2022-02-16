@@ -3,35 +3,27 @@
 (function ($) {
         var previewTable = null;
         var fieldsForm = null;
-        var submissionsTable = null;
 
         $(document).ready(function () {
 
             fieldsForm = $('#wpform-fields-form');
-            submissionsTable = $('table[id="submissions"]');
-
-            var onConfigTab = fieldsForm.length != 0;
-            var onSubmissionsTab = submissionsTable.length != 0;
 
             var admin = new $.SDUPSAdminCommon();
             admin.init(overviewSuccess);
 
-            if (onSubmissionsTab) {
-                admin.submissionsTable(submissionsTable, fieldsForm);
-            } else if (onConfigTab) {
-                fieldsForm.on('submit', function (e) {
-                    e.preventDefault();
+            fieldsForm.on('submit', function (e) {
+                e.preventDefault();
+                if (previewTable === null) {
+                    previewTable = admin.submissionsTable($('#submission-data-preview'), fieldsForm,
+                        processFieldsFormData, previewTableDataSource);
                     $('#confirmation-form-container').show();
-                    if (previewTable === null) {
-                        previewTable = admin.submissionsTable($('#submission-data-preview'), fieldsForm,
-                            processFieldsFormData, previewTableDataSource);
-                    } else {
-                        previewTable.ajax.reload();
-                    }
-                });
+                    previewTable.columns.adjust();
+                } else {
+                    previewTable.ajax.reload();
+                }
+            });
 
-                checkFormSelections(false, null);
-            }
+            checkFormSelections(false, null);
         });
 
         function overviewSuccess(form, response) {

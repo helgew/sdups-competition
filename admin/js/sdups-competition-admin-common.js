@@ -56,6 +56,10 @@
                     form = element.closest('form');
                 }
 
+                if (!form) {
+                    form = element;
+                }
+
                 var config = {
                     "ajax": {
                         "url": cpm_object.ajax_url,

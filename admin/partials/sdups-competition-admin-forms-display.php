@@ -1,10 +1,10 @@
 <?php
-if ( ! defined( 'WPINC' ) ) die;
+if ( ! defined( 'WPINC' ) ) {
+	die;
+}
 
 /**
- * Provide a admin area view for the plugin
- *
- * This file is used to markup the admin-facing aspects of the plugin.
+ * Provide a admin area's voting forms tab view for the plugin
  *
  * @link       https://github.com/helgew/sdups-competition
  * @since      1.0.0
@@ -13,8 +13,4 @@ if ( ! defined( 'WPINC' ) ) die;
  * @subpackage SDUPS_Competition/admin/partials
  */
 ?>
-
-<div class="wrap">
-    <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-    <h2>Existing Voting Forms</h2>
-</div>
+<h3>Voting Forms</h3>

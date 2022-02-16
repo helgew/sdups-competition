@@ -91,17 +91,24 @@ class SDUPS_Competition_Admin {
 		return SDUPS_COMPETITION_PLUGIN_NAME . '-admin';
 	}
 
-	public static function get_overview_menu_slug() {
-		return self::get_admin_slug() . '-overview';
+	public static function get_manage_menu_slug() {
+		return self::get_admin_slug() . '-manage';
 	}
 
-	public static function get_create_form_menu_slug() {
-		return self::get_admin_slug() . '-create-form';
+	public static function get_setttings_menu_slug() {
+		return self::get_admin_slug() . '-settings';
 	}
 
-	private function init_context( string $page ): void {
+	private function init_context(): void {
+		$page = $_GET['tab'] ?? $_GET['page'];
 		switch ( $page ) {
-			case 'overview':
+			case 'create-form':
+				$form = SDUPS_Competition_Submission_Forms::get_active_form();
+				if ( $form ) {
+					$this->context['categories'] = $form->get_submission_categories();
+				}
+				break;
+			case self::get_setttings_menu_slug():
 				$submission_url                  = get_option( $this->submission_url_option, site_url() . '/submit-photo-and-or-video/' );
 				$this->context['submission_url'] = $submission_url;
 				$this->context['possible_forms'] = $this->parse_submission_page( $submission_url );
@@ -109,12 +116,6 @@ class SDUPS_Competition_Admin {
 				if ( sizeof( $this->context['possible_forms'] ) == 1 ) {
 					$this->context['formId']          = $this->context['possible_forms'][0]['value'];
 					$this->context['possible_fields'] = $this->parse_submission_form( $this->context['formId'] );
-				}
-				break;
-			case 'create-forms':
-				$form = SDUPS_Competition_Submission_Forms::get_active_form();
-				if ( $form ) {
-					$this->context['categories'] = $form->get_submission_categories();
 				}
 				break;
 		}
@@ -151,14 +152,24 @@ class SDUPS_Competition_Admin {
 
 		wp_enqueue_script( $common_script_handle );
 
-		$page = $_REQUEST['page'];
-		if ( $page !== '' && $page === self::get_overview_menu_slug() ) {
-			wp_enqueue_script( SDUPS_COMPETITION_PLUGIN_NAME . '-admin-overview-script',
-				plugin_dir_url( __FILE__ ) . 'js/' . SDUPS_COMPETITION_PLUGIN_NAME . '-admin-overview.js',
-				array( $common_script_handle ), $this->version, false );
-		} elseif ( $page !== '' && $page === self::get_create_form_menu_slug() ) {
-			wp_enqueue_script( SDUPS_COMPETITION_PLUGIN_NAME . '-admin-create-form-script',
-				plugin_dir_url( __FILE__ ) . 'js/' . SDUPS_COMPETITION_PLUGIN_NAME . '-admin-create-form.js',
+		$page   = $_REQUEST['tab'] ?? $_REQUEST['page'];
+		$script = null;
+		switch ( $page ) {
+			case self::get_manage_menu_slug():
+				$script = 'manage';
+				break;
+			case 'create-form':
+				$script = 'create-form';
+				break;
+			case self::get_setttings_menu_slug():
+				$script = 'settings';
+				break;
+			default:
+		}
+
+		if ( ! is_null( $script ) ) {
+			wp_enqueue_script( SDUPS_COMPETITION_PLUGIN_NAME . '-admin-' . $script . '-script',
+				plugin_dir_url( __FILE__ ) . 'js/' . SDUPS_COMPETITION_PLUGIN_NAME . '-admin-' . $script . '.js',
 				array( $common_script_handle ), $this->version, false );
 		}
 
@@ -171,43 +182,34 @@ class SDUPS_Competition_Admin {
 	public function add_sdups_admin_menus() {
 		self::$LOGGER->debug( "Generating admin menu" );
 
-		$admin_slug = self::get_admin_slug();
-		$main_menu  = self::get_overview_menu_slug();
+		$main_menu  = self::get_manage_menu_slug();
 
 		add_menu_page(
 			'SDUPS Competition',
 			'Competition',
 			SDUPS_COMPETITION_USER_CAPABILITY,
 			$main_menu,
-			array( $this, 'admin_overview_page' ),
+			array( $this, 'admin_manage_page' ),
 			null,
 			4
 		);
 
 		$main_page = add_submenu_page( $main_menu,
 			'SDUPS Competition',
-			'Overview',
+			'Manage',
 			SDUPS_COMPETITION_USER_CAPABILITY,
 			$main_menu,
-			array( $this, 'admin_overview_page' )
+			array( $this, 'admin_manage_page' )
 		);
 
-		$help = new SDUPS_Competition_Admin_Help( $main_page, $this->plugin_name );
+		$help = new SDUPS_Competition_Admin_Help( $main_page );
 
 		add_submenu_page( $main_menu,
 			'SDUPS Competition',
-			'Create Form',
+			'Settings',
 			SDUPS_COMPETITION_USER_CAPABILITY,
-			self::get_create_form_menu_slug(),
-			array( $this, 'admin_create_form_page' )
-		);
-
-		add_submenu_page( $main_menu,
-			'SDUPS Competition',
-			'Voting Forms',
-			SDUPS_COMPETITION_USER_CAPABILITY,
-			$admin_slug . '-forms-admin',
-			array( $this, 'admin_voting_forms_page' )
+			self::get_setttings_menu_slug(),
+			array( $this, 'admin_settings_page' )
 		);
 
 		$this->check_config();
@@ -215,30 +217,23 @@ class SDUPS_Competition_Admin {
 
 	private function check_config() {
 		if ( sizeof( $this->submission_forms->get_data()['entries'] ) == 0 ) {
-			SDUPS_Competition_Admin_Notices::error( 'Please complete the initial configuration in the <b>Overview -> Configuration</b> section.', 'initial-config' );
+			SDUPS_Competition_Admin_Notices::error( 'Please complete the initial configuration under the <b>Settings</b> menu.', 'initial-config' );
 		}
 	}
 
-	public function admin_overview_page() {
-		self::$LOGGER->debug( 'Generating overview page' );
+	public function admin_manage_page() {
+		self::$LOGGER->debug( 'Generating manage page' );
 		if ( current_user_can( SDUPS_COMPETITION_USER_CAPABILITY ) ) {
-			$this->init_context( 'overview' );
-			require_once plugin_dir_path( __FILE__ ) . 'partials/' . $this->plugin_name . '-admin-overview-display.php';
+			$this->init_context();
+			require_once plugin_dir_path( __FILE__ ) . 'partials/' . $this->plugin_name . '-admin-manage-display.php';
 		}
 	}
 
-	public function admin_create_form_page() {
-		self::$LOGGER->debug( 'Generating form creation page' );
+	public function admin_settings_page() {
+		self::$LOGGER->debug( 'Generating settings page' );
 		if ( current_user_can( SDUPS_COMPETITION_USER_CAPABILITY ) ) {
-			$this->init_context( 'create-forms' );
-			require_once plugin_dir_path( __FILE__ ) . 'partials/' . $this->plugin_name . '-admin-create-form-display.php';
-		}
-	}
-
-	public function admin_voting_forms_page() {
-		self::$LOGGER->debug( 'Generating voting forms page' );
-		if ( current_user_can( SDUPS_COMPETITION_USER_CAPABILITY ) ) {
-			require_once plugin_dir_path( __FILE__ ) . 'partials/' . $this->plugin_name . '-admin-forms-display.php';
+			$this->init_context();
+			require_once plugin_dir_path( __FILE__ ) . 'partials/' . $this->plugin_name . '-admin-settings-display.php';
 		}
 	}
 
@@ -290,7 +285,7 @@ class SDUPS_Competition_Admin {
 			case 'save_submission_form':
 				$form = SDUPS_Competition_Submission_Form::from_preview_form( $data );
 				$form->save();
-				$url      = admin_url( 'admin.php' ) . '?page=' . self::get_overview_menu_slug();
+				$url      = admin_url( 'admin.php' ) . '?page=' . self::get_manage_menu_slug();
 				$response = [ 'status' => 302, 'url' => $url ];
 				break;
 			case 'get_submissions_by_category':
