@@ -3,6 +3,10 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+$this->index                            = 3;
+$this->content[ $this->index ]['id']    = 'manage-forms';
+$this->content[ $this->index ]['title'] = 'Voting Forms';
+
 /**
  * Provide a admin area help section.
  *
@@ -13,4 +17,4 @@ if ( ! defined( 'WPINC' ) ) {
  * @subpackage SDUPS_Competition/admin/partials
  */
 ?>
-<h2>This is the helpful overview help section with some help to be helpful.</h2>
+<h2>This is the helpful forms help section with some help to be helpful.</h2>

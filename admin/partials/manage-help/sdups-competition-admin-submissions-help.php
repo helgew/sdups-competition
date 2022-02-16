@@ -3,6 +3,10 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+$this->index                            = 1;
+$this->content[ $this->index ]['id']    = 'manage-submissions';
+$this->content[ $this->index ]['title'] = 'Current Submissions';
+
 /**
  * Provide a admin area help section.
  *
@@ -13,4 +17,4 @@ if ( ! defined( 'WPINC' ) ) {
  * @subpackage SDUPS_Competition/admin/partials
  */
 ?>
-<h2>This is the helpful forms help section with some help to be helpful.</h2>
+<h2>This is the helpful submissions help section with some help to be helpful.</h2>

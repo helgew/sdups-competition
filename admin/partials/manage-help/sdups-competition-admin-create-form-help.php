@@ -3,6 +3,10 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+$this->index                            = 2;
+$this->content[ $this->index ]['id']    = 'create-form';
+$this->content[ $this->index ]['title'] = 'Create Form';
+
 /**
  * Provide a admin area help section.
  *
@@ -13,4 +17,4 @@ if ( ! defined( 'WPINC' ) ) {
  * @subpackage SDUPS_Competition/admin/partials
  */
 ?>
-<h2>This is the helpful configuration help section with some help to be helpful.</h2>
+<h2>This is the helpful help section for creating forms with some help to be helpful.</h2>

@@ -9,55 +9,38 @@
  * @author     Helge Weissig <helgew@grajagan.org>
  */
 class SDUPS_Competition_Admin_Help {
-	private $plugin_name;
+	private string $section;
+	private array $content;
+	private int $index;
 
-	public function __construct( $page, $plugin_name ) {
-		$this->plugin_name = $plugin_name;
-		add_action( 'load-' . $page, [$this, 'add_help_tabs']);
+	public function __construct( string $page ) {
+		preg_match( '/-([^-]+)$/', $page, $matches );
+		if ( sizeof( $matches ) === 2 ) {
+			$this->section = $matches[1] . '-help';
+		}
+		add_action( 'load-' . $page, [ $this, 'add_help_tabs' ] );
 	}
 
 	public function add_help_tabs() {
 		$screen = get_current_screen();
-		$screen->add_help_tab(
-			array(
-				'id' => 'main-screen-overview',
-				'title' => 'Overview',
-				'content' => $this->content('admin-overview'),
-			)
-		);
 
-		$screen->add_help_tab(
-			array(
-				'id' => 'main-screen-submissions',
-				'title' => 'Current Submissions',
-				'content' => $this->content('admin-overview-submissions'),
-			)
-		);
+		foreach ( glob( plugin_dir_path( __FILE__ ) .
+		                'partials/' . $this->section . '/*.php' ) as $file ) {
+			ob_start();
+			include_once $file;
+			$this->content[$this->index]['content'] = ob_get_contents();
+			ob_end_clean();
+		}
 
-		$screen->add_help_tab(
-			array(
-				'id' => 'main-screen-forms',
-				'title' => 'Voting Forms',
-				'content' => $this->content('admin-overview-forms'),
-			)
-		);
-
-		$screen->add_help_tab(
-			array(
-				'id' => 'main-screen-settings',
-				'title' => 'Configuration',
-				'content' => $this->content('admin-overview-config'),
-			)
-		);
-	}
-
-	private function content($tab, $data = null) {
-		( $data ) ? extract( $data ) : null;
-		ob_start();
-		include plugin_dir_path(__FILE__) . 'partials/' . $this->plugin_name . '-' . $tab . '-help.php';
-		$content = ob_get_contents();
-		ob_end_clean();
-
-		return $content;
+		ksort($this->content);
+		foreach ($this->content as $tab) {
+			$screen->add_help_tab(
+				array(
+					'id'      => $tab['id'],
+					'title'   => $tab['title'],
+					'content' => $tab['content']
+				)
+			);
+		}
 	}
 }
