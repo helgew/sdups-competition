@@ -35,6 +35,7 @@ class SDUPS_Competition_Submission_Forms extends SDUPS_Competition_DB {
 				            division_field int NOT NULL COMMENT 'Division Field ID',
 				            category_field int NOT NULL COMMENT 'Category Field ID',
 				            upload_field int NOT NULL COMMENT 'Upload Field ID',
+				            consent_field int NOT NULL COMMENT 'Consent Field ID',
 				            last_modified datetime NOT NULL COMMENT 'Last Modified',
 				            last_parsed datetime DEFAULT '0000-00-00 00:00:00' COMMENT 'Last Analysed',
 				            is_active tinyint NOT NULL DEFAULT 0 COMMENT 'Active',
@@ -48,7 +49,7 @@ class SDUPS_Competition_Submission_Forms extends SDUPS_Competition_DB {
 	}
 
 	public static function get_field_attributes(): array {
-		return [ 'name', 'email', 'division', 'category', 'upload' ];
+		return [ 'name', 'email', 'division', 'category', 'upload', 'consent' ];
 	}
 
 	public static function get_active_form(): ?SDUPS_Competition_Submission_Form {
@@ -84,6 +85,7 @@ class SDUPS_Competition_Submission_Forms extends SDUPS_Competition_DB {
 		$data['division_field']  = $form->get_division_field();
 		$data['category_field']  = $form->get_category_field();
 		$data['upload_field']    = $form->get_upload_field();
+		$data['consent_field']   = $form->get_consent_field();
 		$data['last_modified']   = $form->get_last_modified();
 		$data['last_parsed']     = $form->get_last_parsed();
 		$data['is_active']       = $form->is_active() ? 1 : 0;
@@ -134,6 +136,7 @@ class SDUPS_Competition_Submission_Form {
 	private int $division_field;
 	private int $category_field;
 	private int $upload_field;
+	private int $consent_field;
 	private string $last_modified;
 	private string $last_parsed;
 	private int $is_active;
@@ -203,12 +206,15 @@ class SDUPS_Competition_Submission_Form {
 		                "    MAX(CASE WHEN field_id = %d THEN value END) AS division," .
 		                "    MAX(CASE WHEN field_id = %d THEN value END) AS category," .
 		                "    MAX(CASE WHEN field_id = %d THEN value END) AS upload," .
+		                "    MAX(CASE WHEN field_id = %d AND value LIKE 'YES%%' THEN 1" .
+		                "             WHEN field_id = %d AND value LIKE 'NO%%' THEN 0" .
+		                "        END) AS consent," .
 		                "    MAX(date) AS date" .
 		                " FROM " . $wpdb->prefix . 'wpforms_entry_fields' .
 		                " WHERE form_id = %d" .
 		                " GROUP BY entry_id",
-			$this->name_field, $this->email_field, $this->division_field,
-			$this->category_field, $this->upload_field, $this->wpforms_form_id );
+			$this->name_field, $this->email_field, $this->division_field, $this->category_field,
+			$this->upload_field, $this->consent_field, $this->consent_field, $this->wpforms_form_id );
 
 		$clause = $this->process_filters( $filters );
 		if ( $clause ) {
@@ -249,7 +255,7 @@ class SDUPS_Competition_Submission_Form {
 
 	private static function set_entry_id( object $row ): object {
 		preg_match( "/.*?-([\da-z]{32})[-.].*/", $row->upload, $matches );
-		if ( sizeof( $matches ) === 1 ) {
+		if ( sizeof( $matches ) === 2 ) {
 			$uuid = $matches[1];
 		} else {
 			$uuid = 'empty';
@@ -329,6 +335,10 @@ class SDUPS_Competition_Submission_Form {
 
 	public function get_upload_field(): int {
 		return $this->upload_field ?? 0;
+	}
+
+	public function get_consent_field(): int {
+		return $this->consent_field ?? 0;
 	}
 
 	public function get_last_modified(): string {

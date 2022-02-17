@@ -115,6 +115,7 @@ if ( ! defined( 'WPINC' ) ) {
                     <th>Division</th>
                     <th>Category</th>
                     <th>Upload</th>
+                    <th>Consent</th>
                 </tr>
                 </thead>
                 <tfoot>
@@ -125,6 +126,7 @@ if ( ! defined( 'WPINC' ) ) {
                     <th>Division</th>
                     <th>Category</th>
                     <th>Upload</th>
+                    <th>Consent</th>
                 </tr>
                 </tfoot>
             </table>

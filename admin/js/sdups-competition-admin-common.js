@@ -2,6 +2,13 @@
 
 (function ($) {
         $.SDUPSAdminCommon = function () {
+            $.fn.dataTable.ext.type.order['checkbox-pre'] = function (data) {
+                return ($(data).attr('checked') ? 1 : 0);
+            };
+
+            $.fn.dataTable.ext.type.order['division-pre'] = function (data) {
+                return ['Novice', 'Amateur', 'Advanced', 'Video'].indexOf(data);
+            };
         }
         $.SDUPSAdminCommon.prototype = {
             initAjaxForm: function (onAjaxSuccess) {
@@ -71,8 +78,20 @@
                                 processDataFunction(data);
                             }
                         },
-                        "dataSrc": (getDataSourceFunction && typeof getDataSourceFunction === 'function') ?
-                            getDataSourceFunction : "data",
+                        "dataSrc": function (json) {
+                            var data = json.data;
+                            if (getDataSourceFunction && typeof getDataSourceFunction === 'function') {
+                                data = getDataSourceFunction(json);
+                            }
+
+                            for (var key in data) {
+                                var row = data[key];
+                                var checkbox = '<input type="checkbox" class="consent-checkbox"';
+                                checkbox += (row['consent'] == 1 ? " checked" : "") + ">";
+                                row['consent'] = checkbox;
+                            }
+                            return data;
+                        },
                         "type": "POST",
                         "error": function (response) {
                             this.handleAjaxError(form, response.responseJSON.data);
@@ -93,6 +112,12 @@
 
                 var dt = element.DataTable(config);
                 dt.on('init.dt', initComplete);
+                dt.on('draw', function () {
+                    $('.consent-checkbox', dt.body()).on('click', function () {
+                        this.blur();
+                        return false;
+                    });
+                })
 
                 return dt;
             },
@@ -101,7 +126,10 @@
                 {"data": "name"},
                 {"data": "email"},
                 {"data": "date"},
-                {"data": "division"},
+                {
+                    "data": "division",
+                    "type": "division"
+                },
                 {"data": "category"},
                 {
                     "data": "upload",
@@ -110,6 +138,11 @@
                         $(nTd).html(getLinkForUpload(oData.upload));
                     }
                 },
+                {
+                    "data": "consent",
+                    "className": "dt-body-center",
+                    "type": "checkbox"
+                },
             ]
         }
 
@@ -117,7 +150,6 @@
             return '<a href="' + url + '" target="_blank">' +
                 (url !== '' && url.endsWith('4') ? 'video' : 'image') + '</a>'
         }
-
 
         function initComplete(e, settings, json) {
             var api = new $.fn.dataTable.Api(settings);

@@ -23,6 +23,7 @@ if ( ! defined( 'WPINC' ) ) {
             <th>Division</th>
             <th>Category</th>
             <th>Upload</th>
+            <th>Publish</th>
         </tr>
         </thead>
         <tfoot>
@@ -33,6 +34,7 @@ if ( ! defined( 'WPINC' ) ) {
             <th>Division</th>
             <th>Category</th>
             <th>Upload</th>
+            <th>Publish</th>
         </tr>
         </tfoot>
     </table>
