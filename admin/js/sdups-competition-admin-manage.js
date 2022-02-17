@@ -2,6 +2,6 @@
 
 (function ($) {
     $(document).ready(function () {
-        new $.SDUPSAdminCommon().submissionsTable($('table[id="submissions"]'));
+        new $.SDUPSAdminCommon().getSubmissionsTable($('table[id="submissions"]'));
     });
 })(jQuery);

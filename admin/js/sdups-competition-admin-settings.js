@@ -9,12 +9,12 @@
             fieldsForm = $('#wpform-fields-form');
 
             var admin = new $.SDUPSAdminCommon();
-            admin.init(overviewSuccess);
+            admin.initAjaxForm(overviewSuccess);
 
             fieldsForm.on('submit', function (e) {
                 e.preventDefault();
                 if (previewTable === null) {
-                    previewTable = admin.submissionsTable($('#submission-data-preview'), fieldsForm,
+                    previewTable = admin.getSubmissionsTable($('#submission-data-preview'), fieldsForm,
                         processFieldsFormData, previewTableDataSource);
                     $('#confirmation-form-container').show();
                     previewTable.columns.adjust();

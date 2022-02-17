@@ -4,7 +4,7 @@
         $.SDUPSAdminCommon = function () {
         }
         $.SDUPSAdminCommon.prototype = {
-            init: function (onAjaxSuccess) {
+            initAjaxForm: function (onAjaxSuccess) {
                 // WP makes notices jump around :(
                 $('.notice').show();
 
@@ -51,7 +51,7 @@
                 }
             },
 
-            submissionsTable: function (element, form, processDataFunction, getDataSourceFunction, options) {
+            getSubmissionsTable: function (element, form, processDataFunction, getDataSourceFunction, options) {
                 if (!form) {
                     form = element.closest('form');
                 }

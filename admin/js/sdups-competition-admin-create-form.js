@@ -37,7 +37,7 @@ var submissionsTable = null;
                 $('#submissions-table-container').show();
                 if (submissionsTable === null) {
                     submissionsTable =
-                        admin.submissionsTable(subs, categoriesForm,
+                        admin.getSubmissionsTable(subs, categoriesForm,
                             processCategoriesFormData, null, options);
                     submissionsTable.on('draw', function () {
                         subs.find('input[type=checkbox]').change(function () {
