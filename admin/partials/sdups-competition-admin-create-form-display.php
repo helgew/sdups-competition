@@ -49,6 +49,14 @@ if ( ! defined( 'WPINC' ) ) {
                 <table id="submissions" class="stripe" style="width: 100%;">
                     <thead>
                     <tr>
+                        <th><input type="checkbox"/></th>
+                        <th><input type="text" placeholder="Search Name" style="font-weight: normal"/></th>
+                        <th><input type="text" placeholder="Search Email" style="font-weight: normal"/></th>
+                        <th><input type="text" placeholder="Search Date" style="font-weight: normal"/></th>
+                        <th><select style="font-weight: normal"></select></th>
+                        <th>&nbsp;</th>
+                    </tr>
+                    <tr>
                         <th>Use</th>
                         <th>Name</th>
                         <th>Email</th>
